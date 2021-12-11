@@ -1,3 +1,4 @@
+var temp_product = [];
 class ProductList {
     constructor(container = '.products') {
         this.container = container;
@@ -20,56 +21,87 @@ class ProductList {
         for (let product of this.goods) {
             const item = new ProductItem(product);
             console.log(item);
-            block.insertAdjacentHTML("beforeend", item.render());
+            block.insertAdjacentHTML("beforeend", item.renderPage());
         }
     }
 }
-
-class BucketList {
-    constructor(container = '.bucket', click = '.buy-btn') {
-        this.container = container;
-        this.click = click;
-        this.addItems();
-        // this.deleteItem();
-        // this.summItem();
-    }
-
-    addItems() {
-        const button = document.querySelectorAll(this.click);
-        const bucket_block = document.querySelector(this.container);
-
-        button.forEach((item) => {
-            item.addEventListener('click', event => {
-                const bucket_goods = event.currentTarget.getAttribute('id');
-                const bucket_item = new ProductItem(list.goods[bucket_goods]);
-                // console.log(sort);
-                console.log(bucket_item);
-                bucket_block.insertAdjacentHTML("beforeend", bucket_item.render());
-            });
-        })
-    }
-}
-
 class ProductItem {
-    constructor(product, img = 'img') {
+    constructor(product, img = 'img', container = '.bucket') {
         this.title = product.title;
         this.id = product.id;
         this.price = product.price;
         this.img = img;
         this.catalog_img = product.catalog_img;
+        this.container = container;
     }
-    render() {
+
+    renderPage() {
         return `<div class="product-item">
             <h3 class = "title">${this.title}</h3>
             <img src="${this.img}/${this.catalog_img}" alt="img_${this.id}" style="width: 190px; height: 140px;">
             <p class = "price">${this.price}</p>
             <button id="${this.id - 1}" class="buy-btn">Купить</button>
-        </div>`
+            </div>`
+    }
+
+
+}
+class BucketItem {
+    constructor(product, number_item, img = 'img', container = '.bucket') {
+        this.id = product.id;
+        this.title = product.title;
+        this.price = product.price;
+        this.price_addres = Number(number_item);
+        this.img = img;
+        this.catalog_img = product.catalog_img;
+        this.number_item = number_item;
+        this.container = document.querySelector(container);
+        // this.count = count;
+    }
+
+    renderBucket() {
+        return `<div class="bucket-item">
+            <div>
+            <h3 class = "title">${this.title}</h3>
+            <img src="${this.img}/${this.catalog_img}" alt="img_${this.id}" style="width: 100px; height: 70px;">
+            </div>
+            <p id="${this.id - 1}" class = "price">${1}x ${this.price} р</p>
+         </div>`
+    }
+
+    addItems() {
+        this.container.insertAdjacentHTML("beforeend", this.renderBucket());
+        temp_product[this.number_item] = new BucketItem(list.goods[this.number_item], this.number_item);
+        // this.addItems(bucket_item);
+    }
+
+    summItem() {
+
+        document.querySelector(`"#${this.price_addres}"`).price_addres.innerHTML = `${2}x ${this.price} р`;;
     }
 }
 
 let list = new ProductList();
-let bucket = new BucketList;
+
+
+document.querySelectorAll('.buy-btn').forEach((item) => {
+    item.addEventListener('click', event => {
+
+
+        const number_item = event.currentTarget.getAttribute('id');
+        const bucket_item = new BucketItem(list.goods[number_item], number_item);
+        console.log(temp_product);
+
+        if (temp_product[number_item] === undefined) {
+            bucket_item.addItems();
+        }
+        else {
+            bucket_item.summItem();
+        }
+
+    });
+});
+
 
 
 // var box = [];
