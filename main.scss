@@ -1,0 +1,67 @@
+$Color: lightcoral;
+
+header{
+	max-width: 1140px;
+	margin: 0 auto;	
+	text-align: center;
+}
+
+.products{
+	max-width: 1140px;
+	margin: 0 auto;
+	display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;	
+}
+
+.product-item{
+	margin-top: 30px;
+    border: solid 1px brown;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+	border-radius: 20px;
+	padding-bottom: 20px;
+	background-color: bisque;
+}
+
+.buy-btn, 
+.btn-cart{								//https://stylecss.ru/effekty-pri-navedenii-na-blok-ili-knopku-css/
+	border-radius: 5px;
+    background-color: transparent;
+    border: 2px solid;
+    cursor: pointer;
+    font-size: 0.950em;
+    font-style: oblique;
+    margin: 15px;
+    padding: 10px 30px;
+    border-color: $Color;
+    color: #fff;
+    box-shadow: 0 0 40px 40px $Color inset, 0 0 0 0 $Color;
+    transition: all 300ms;
+}
+
+.buy-btn:active,
+.btn-cart:hover {
+	color: $Color;
+	box-shadow: 0 0 10px 0 $Color inset, 0 0 10px 4px $Color;
+}
+
+.btn-cart{
+	width: 100%;
+	margin: 0;
+}
+
+.price{
+    font-family: cursive;
+    font-size: larger;
+    margin-top: 15px;
+    margin-bottom: 0px;
+}
+
+.title{
+    color: brown;
+    font-family: sans-serif;
+}
+
+
