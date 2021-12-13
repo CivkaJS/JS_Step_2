@@ -22,7 +22,15 @@ header{
     align-items: flex-end;
 }
 
-.bucket{
+.count-title{
+    border-radius: 25px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    background-color: bisque;
+}
+
+.bucket-summ{
     position: absolute;
     top: 60px;
     border: solid 1px black;
@@ -39,6 +47,13 @@ header{
     justify-content: space-around;
     align-items: center;
     border-bottom: 2px solid maroon;
+}
+
+.count-item{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 60px;
 }
 
 .products{
@@ -89,9 +104,10 @@ header{
 .btn-cart:active{
     box-shadow: 0 0 10px 0 $Color inset, 0 0 10px 4px $Color;
 }
-.btn-cart:focus ~ .bucket,
-.btn-cart:active ~ .bucket,
-.btn-cart:hover{
+
+.btn-cart:focus ~ .bucket-summ,
+.btn-cart:active ~ .bucket-summ,
+.bucket-summ:hover{
     display: block;
 }
 
@@ -106,5 +122,3 @@ header{
     color: brown;
     font-family: sans-serif;
 }
-
-

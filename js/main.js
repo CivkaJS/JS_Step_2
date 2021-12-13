@@ -1,4 +1,16 @@
 var temp_product = [];
+var summ_page_item = 0;
+var summ_bucket_item = 0;
+class GoodsList {
+    constructor(product, price, count) {
+        this.temp_product = product;
+        this.summ_page_item = 0;
+        this.summ_bucket_item = 0;
+        this.price = price;
+        this.count = count;
+    }
+}
+
 class ProductList {
     constructor(container = '.products') {
         this.container = container;
@@ -25,6 +37,7 @@ class ProductList {
         }
     }
 }
+
 class ProductItem {
     constructor(product, img = 'img', container = '.bucket') {
         this.title = product.title;
@@ -32,7 +45,7 @@ class ProductItem {
         this.price = product.price;
         this.img = img;
         this.catalog_img = product.catalog_img;
-        this.container = container;
+        this.container = document.querySelector(container);
     }
 
     renderPage() {
@@ -43,127 +56,158 @@ class ProductItem {
             <button id="${this.id - 1}" class="buy-btn">Купить</button>
             </div>`
     }
-
-
 }
-class BucketItem {
-    constructor(product, number_item, img = 'img', container = '.bucket') {
-        this.id = product.id;
-        this.title = product.title;
-        this.price = product.price;
-        this.price_addres = Number(number_item);
-        this.img = img;
-        this.catalog_img = product.catalog_img;
-        this.number_item = number_item;
-        this.container = document.querySelector(container);
-        // this.count = count;
+
+class GoodsList extends ProductItem {
+    constructor(product, price, count) {
+        this.temp_product = product;
+        this.summ_page_item = 0;
+        this.summ_bucket_item = 0;
+        this.price = price;
+        this.count = count;
+    }
+}
+
+class BucketItem extends ProductItem {
+    constructor(product, img = 'img', container = `.bucket`, container_summ = '.count-title') {
+        super(product, img, container, container_summ);
+
+        this.id = this.id - 1;
+        // this.title = product.title;
+        // this.price = product.price;
+        // this.img = img;
+        // this.catalog_img = product.catalog_img;
+        // this.container = document.querySelector(.bucket);
+        this.objPageSumm = document.querySelector(container_summ);
+        this.count = 1;
     }
 
     renderBucket() {
-        return `<div class="bucket-item">
+        return `<div id="${this.id}-box" class="bucket-item">
             <div>
             <h3 class = "title">${this.title}</h3>
             <img src="${this.img}/${this.catalog_img}" alt="img_${this.id}" style="width: 100px; height: 70px;">
             </div>
-            <p id="${this.id - 1}" class = "price">${1}x ${this.price} р</p>
+            <div id="${this.id}-price" class = "price">
+            <p>${this.count}шт. ${this.price} $</p>
+            </div>
+            <div class = "count-item">
+            <button id="${this.id}-add" class="count-add">+</button>
+            <button id="${this.id}-delete" class="count-delete">-</button>
+            </div>
          </div>`
     }
 
     addItems() {
         this.container.insertAdjacentHTML("beforeend", this.renderBucket());
-        temp_product[this.number_item] = new BucketItem(list.goods[this.number_item], this.number_item);
-        // this.addItems(bucket_item);
+        temp_product[this.id] = new BucketItem(list.goods[this.id], this.number_item);
+        summ_page_item++;
+        console.log(temp_product);
     }
 
     summItem() {
+        temp_product[this.id].count++;
+        summ_page_item++;
+        temp_product[this.id].price = this.price * temp_product[this.id].count;
+        document.querySelector(`[id="${this.id}-price"]`).innerHTML = `${temp_product[this.id].count}шт. ${temp_product[this.id].price} $`;
+    }
 
-        document.querySelector(`"#${this.price_addres}"`).price_addres.innerHTML = `${2}x ${this.price} р`;;
+    deleteItem() {
+        temp_product[this.id].count--;
+        summ_page_item--;
+        temp_product[this.id].price = this.price * temp_product[this.id].count;
+        document.querySelector(`[id="${this.id}-price"]`).innerHTML = `${temp_product[this.id].count}шт. ${temp_product[this.id].price} $`;;
+    }
+
+    finishSummPage() {
+        this.objPageSumm.innerHTML = summ_page_item;
+    }
+
+    finishSumm() {
+        summ_bucket_item += this.price;
+        document.querySelector('.summ_price').innerHTML = `${summ_bucket_item} $`;
+    }
+
+    finishDelete() {
+        summ_bucket_item -= this.price;
+        document.querySelector('.summ_price').innerHTML = `${summ_bucket_item} $`;
+    }
+
+    static getIDEvent(object) {
+        let number_item = object.currentTarget.getAttribute('id');
+        number_item = number_item.split('');
+        number_item = number_item.find(item => String(parseInt(item, 10)) === String(item));
+        return number_item;
+    }
+
+    static getIDObject(object) {
+        let number_item = object.getAttribute('id');
+        number_item = number_item.split('');
+        number_item = number_item.find(item => String(parseInt(item, 10)) === String(item));
+        return number_item;
+    }
+
+    addButton() {
+        document.querySelectorAll('.count-add').forEach((item) => {
+            item.addEventListener('click', event => {
+                event.preventDefault();
+
+                const bucket_item = new BucketItem(list.goods[BucketItem.getIDEvent(event)]);
+                bucket_item.summItem();
+                bucket_item.finishSumm();
+                bucket_item.finishSummPage();
+            });
+        });
+    }
+
+    deleteButton() {
+        document.querySelectorAll('.count-delete').forEach((item) => {
+            item.addEventListener('click', event => {
+                event.preventDefault();
+
+                const bucket_item = new BucketItem(list.goods[BucketItem.getIDEvent(event)]);
+                bucket_item.deleteItem();
+                bucket_item.finishDelete();
+                bucket_item.finishSummPage();
+
+                if (temp_product[this.id].count == 0) {
+                    temp_product[this.id] = 0;
+
+                    if (this.container.hasChildNodes()) {           //Не пуст ли объект, есть ли у него дети
+                        var children = this.container.childNodes;
+                        children.forEach(box => {
+                            if (BucketItem.getIDObject(box) == this.id) {
+                                box.remove();
+                            }
+                        })
+                    }
+                }
+            });
+        });
     }
 }
 
 let list = new ProductList();
-
+let goods = new GoodsList();
 
 document.querySelectorAll('.buy-btn').forEach((item) => {
     item.addEventListener('click', event => {
 
-
         const number_item = event.currentTarget.getAttribute('id');
-        const bucket_item = new BucketItem(list.goods[number_item], number_item);
-        console.log(temp_product);
+        const bucket_item = new BucketItem(list.goods[number_item]);
 
-        if (temp_product[number_item] === undefined) {
+        if ((temp_product[number_item] === undefined) ||
+            (temp_product[number_item] == 0)) {
             bucket_item.addItems();
+
         }
         else {
             bucket_item.summItem();
         }
 
+        bucket_item.addButton();
+        bucket_item.deleteButton();
+        bucket_item.finishSumm();
+        bucket_item.finishSummPage();
     });
 });
-
-
-
-// var box = [];
-
-// /**
-//  * Список товаров
-//  */
-// const products = [
-//     { id: 1, title: 'Notebook', img: 'img', catalog_img: 'notebook.jpg', price: 2000 },
-//     { id: 2, title: 'Mouse', img: 'img', catalog_img: 'mouse.jpg', price: 20 },
-//     { id: 3, title: 'Keyboard', img: 'img', catalog_img: 'keyboard.jpg', price: 200 },
-//     { id: 4, title: 'Gamepad', img: 'img', catalog_img: 'gamepad.jpg', price: 50 },
-// ];
-
-// /**
-//  * Коробка для карточек
-//  * @param {*} id            номер карточки
-//  * @param {*} title         Название продукта
-//  * @param {*} price         цена
-//  * @param {*} img           ссылка на картинку
-//  */
-// class Product {
-//     constructor(id, title, price, img, catalog_img) {
-//         this.id = id;
-//         this.title = title;
-//         this.price = price;
-//         this.catalog_img = catalog_img;
-//         this.img = img;
-//     }
-// }
-
-
-// //Функция для формирования верстки каждого товара
-// //Добавить в выводе изображение
-// const renderProduct = (prod) => {
-
-//     box.push(new Product);				//Создать объект и добавить в масив объектов
-
-//     box[prod.id - 1].id = prod.id;
-//     box[prod.id - 1].title = prod.title;
-//     box[prod.id - 1].price = prod.price;
-//     box[prod.id - 1].catalog_img = prod.catalog_img;
-//     box[prod.id - 1].img = prod.img;
-
-//     return `<div class="product-item">
-//                 <h3 class = "title">${box[prod.id - 1].title}</h3>
-//                 <img src="${box[prod.id - 1].img}/${box[prod.id - 1].catalog_img}" alt="img_${box[prod.id]}" style="width: 190px; height: 140px;">
-//                 <p class = "price">${box[prod.id - 1].price}</p>
-//                 <button class="buy-btn">Купить</button>
-//             </div>`
-// };
-
-// const renderPage = list => {
-
-//     const productsList = list.map(item => renderProduct(item));
-//     console.log(box);
-//     console.log(productsList);
-
-
-//     //не понял почему, но если объединить каждую ячейку массива в строку c указанием разделителя то все получается.
-//     //Если разделитель не поставить productsList.join() запятая остается.
-//     document.querySelector('.products').innerHTML = productsList.join('');
-// };
-
-// renderPage(products);
